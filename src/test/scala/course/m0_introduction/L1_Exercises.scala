@@ -100,12 +100,12 @@ object L1_Exercises extends Lesson {
     */
 
   def add(x: Int, y: Int): Int =
-    123 // <- Fix this implementation
+    x + y
 
   val testExample =
     test("example") {
       assertTrue(add(12, 88) == 100)
-    } @@ ignore // <- Delete `@@ ignore` from here, so that the test can run
+    }
 
   /** ✏ EXERCISE
     *
@@ -113,12 +113,12 @@ object L1_Exercises extends Lesson {
     */
 
   def uppercase(string: String): String =
-    string + "!" // <- Fix this implementation
+    string toUpperCase
 
   val testExample2 =
     test("another example") {
       assertTrue(uppercase("i'm getting the hang of it!") == "I'M GETTING THE HANG OF IT!")
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
