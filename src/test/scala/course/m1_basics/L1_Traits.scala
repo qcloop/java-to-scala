@@ -19,6 +19,10 @@ object L1_Traits extends Lesson {
     def poke: String
   }
 
+  case class Hokey(name: String) extends Pokeable {
+    override def poke: String = s"Hokey and Pokey with $name"
+  }
+
   /** You can can create an instance of a trait by using the new keyword
     * followed by the name of the trait. You will then have to implement the
     * interface.
@@ -33,10 +37,12 @@ object L1_Traits extends Lesson {
       override def poke: String = "Off with your head!"
     }
 
+  val hoagie = Hokey("Hoagie")
   val pokeableTest = test("Pokeable") {
     assertTrue(
       doughBoy.poke == "Tee hee!",
-      theKing.poke == "Off with your head!"
+      theKing.poke == "Off with your head!",
+      hoagie.poke == "Hokey and Pokey with Hoagie"
     )
   }
 

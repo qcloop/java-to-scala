@@ -2,7 +2,6 @@ package course.m1_basics
 
 import course.Lesson
 import zio.test._
-import zio.test.TestAspect._
 
 /** Tony Hoare famously called nulls the "billion dollar mistake".
   * Realistically, the cost they impose on production software is much higher.
@@ -23,10 +22,17 @@ object NullBasics extends Lesson {
   val applyTest = test("apply") {
     import java.io.File
 
-    def parentOf(file: String) = new File(file).getParent
+    def parentOf(file: String): Option[String] = {
+      val parent = new File(file).getParent
+      if (parent == null) None
+      else Some(parent)
+    }
+
+    def parentOf2(file: String): Option[String] = Option(new File(file).getParent)
 
     assertTrue(parentOf("") != null)
-  } @@ ignore
+    assertTrue(parentOf2("") != null)
+  }
 
   /** ✏ EXERCISE
     *
@@ -34,13 +40,18 @@ object NullBasics extends Lesson {
     * an `Option[A]` from an `A` value that might be null.
     */
   val someNoneTest = test("Some / None") {
-    def fromNullable[A](a: A): Option[A] =
-      ???
+    def fromNullable[A](a: A): Option[A] = a match {
+      case 0 => None
+      case null => None
+      case x => Some(x)
+    }
 
     val nullInt = null.asInstanceOf[Int]
 
-    assertTrue(fromNullable(nullInt) == None && fromNullable(42) == Some(42))
-  } @@ ignore
+    assertTrue(fromNullable(nullInt) == None
+      && fromNullable(42) == Some(42)
+      && fromNullable(null) == None)
+  }
 
   /** ✏ EXERCISE
     *
@@ -49,14 +60,18 @@ object NullBasics extends Lesson {
     */
   val getOrElseTest = test("getOrElse") {
     final case class Config(host: String, port: Int)
+
     val DefaultConfig = Config("localhost", 12345)
 
     def loadConfig(): Option[Config] = None
 
-    def config: Config = ??? // <- EDIT HERE
+    def config: Config = loadConfig() match {
+      case None => DefaultConfig
+      case a => a.get
+    } // <- EDIT HERE
 
     assertTrue(config != null)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -66,10 +81,13 @@ object NullBasics extends Lesson {
   val mapTest = test("map") {
     val option: Option[Int] = Some(42)
 
-    def convert(o: Option[Int]): Option[Char] = ???
+    def convert(o: Option[Int]): Option[Char] = o match {
+      case Some(a) => Some(a.toChar)
+      case None => None
+    }
 
     assertTrue(convert(option) == Some(42.toChar))
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -78,10 +96,24 @@ object NullBasics extends Lesson {
     */
   val bothTest = test("both") {
     def both[A, B](left: Option[A], right: Option[B]): Option[(A, B)] =
-      ???
+      left match {
+        case Some(i) => right match {
+          case Some(s) => Some((i, s))
+          case None => None
+        }
+        case None => None
+      }
+
+    def both2[A, B](left: Option[A], right: Option[B]): Option[(A, B)] =
+      (left, right) match {
+        case (Some(a), Some(b)) => Some((a, b))
+        case _ => None
+      }
+
 
     assertTrue(both(Some(42), Some(24)) == Some((42, 24)))
-  } @@ ignore
+    assertTrue(both2(Some(42), None) == None)
+  }
 
   /** ✏ EXERCISE
     *
@@ -90,10 +122,12 @@ object NullBasics extends Lesson {
     */
   val oneOfTest = test("oneOf") {
     def firstOf[A](left: Option[A], right: Option[A]): Option[A] =
-      ???
+      if (!left.isEmpty) left
+      else if (!right.isEmpty) right
+      else None
 
     assertTrue(firstOf(None, Some(24)) == Some(24))
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -105,10 +139,13 @@ object NullBasics extends Lesson {
     */
   val chainTest = test("chain") {
     def chain[A, B](first: Option[A], andThen: A => Option[B]): Option[B] =
-      ???
+      first match {
+        case Some(a) => andThen(a)
+        case None => None
+      }
 
     assertTrue(chain(Some(42), (x: Int) => if (x < 10) None else Some(x)) == Some(42))
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -126,7 +163,7 @@ object NullBasics extends Lesson {
         case None => None
         case Some(v) =>
           v.location match {
-            case None    => None
+            case None => None
             case Some(v) => v.latLong
           }
       }
@@ -161,45 +198,53 @@ object MigrateFromNullToOption extends Lesson {
     */
   val propertyTest = test("property") {
     object SafeProperty {
-      def getProperty(name: String): Option[String] = ???
+      def getProperty(name: String): Option[String] = {
+        val value = System.getProperty(name)
+        if (value == null) None
+        else Some(value)
+      }
 
-      def getIntProperty(name: String): Option[Int] = ???
+      def getIntProperty(name: String): Option[Int] = getProperty(name).map(n => n.toInt)
 
-      def getBoolProperty(name: String): Option[Boolean] = ???
+      def getBoolProperty(name: String): Option[Boolean] = getProperty(name).map(n => n.toBoolean)
     }
 
     assertTrue(SafeProperty.getProperty("foo.bar") == None)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
     * Rewrite the following code to use `Option` instead of nulls.
     */
   val sherlockTest = test("example 1") {
-    final case class Address(street: String)
-    final case class Profile(address: Address)
-    final case class User(id: String, profile: Profile)
+    final case class Address(street: Option[String])
+    final case class Profile(address: Option[Address])
+    final case class User(id: String, profile: Option[Profile])
 
-    val user1 =
-      User("Sherlock Holmes", null)
-    val user2 =
-      User("Sherlock Holmes", Profile(null))
-    val user3 =
-      User("Sherlock Holmes", Profile(Address(null)))
+    val profile1 = Profile(None)
+    val address = Some(Address(None))
+    val profile2 = Profile(address)
+    val user1 = Some(User("Sherlock Holmes", None))
+    val user2 = Some(User("Sherlock Holmes", Some(profile1)))
+    val user3 = Some(User("Sherlock Holmes", Some(profile2)))
 
-    def getStreet(user: User): String =
-      if (user == null) null
-      else if (user.profile == null) null
-      else if (user.profile.address == null) null
-      else if (user.profile.address.street == null) null
-      else user.profile.address.street
+    def getStreet(user: Option[User]): Option[String] =
+      user.flatMap(u => u.profile.flatMap(p => p.address.flatMap(a => a.street)))
+
+    def getStreet2(user: Option[User]): Option[String] =
+      for {
+        u  <- user
+        p  <- u.profile
+        a  <- p.address
+        s <- a.street
+      } yield s
 
     def assertFails(value: => Any) = assertTrue(value == null)
 
     assertFails(getStreet(user1)) &&
-    assertFails(getStreet(user2)) &&
-    assertFails(getStreet(user3))
-  } @@ ignore
+      assertFails(getStreet(user2)) &&
+      assertFails(getStreet(user3)) && assertFails(getStreet2(user3))
+  }
 
   def exercise =
     suite("migrate from null to option")(
