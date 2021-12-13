@@ -30,12 +30,12 @@ object ListOperations extends Lesson {
 
     val list = List(0, 3, 0, 2, 1)
 
-    list.foreach { _ =>
-      sum += 0
+    list.foreach { x =>
+      sum += x
     }
 
     assertTrue(sum == 6)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -45,10 +45,10 @@ object ListOperations extends Lesson {
   val mapTest = test("map") {
     val list1 = List(0, 3, 0, 2, 1)
 
-    val list2 = list1.map(i => i) // EDIT HERE
+    val list2 = list1.map(i => i * 2) // EDIT HERE
 
     assertTrue(list2.sum == 12 && list2.length == list1.length)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -60,10 +60,10 @@ object ListOperations extends Lesson {
 
     val list1 = List(0, 3, 0, 2, 1)
 
-    val list2 = list1.filter(_ => true) // EDIT HERE
+    val list2 = list1.filter(_ % 2 == 0) // EDIT HERE
 
     assertTrue(list2 == List(0, 0, 2))
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -72,10 +72,10 @@ object ListOperations extends Lesson {
   val takeTest = test("take") {
     val list1 = List(1, 2, 3, 4)
 
-    val list2 = list1
+    val list2 = list1.take(2)
 
     assertTrue(list2 == List(1, 2))
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -85,10 +85,10 @@ object ListOperations extends Lesson {
   val takeWhileTest = test("takeWhile") {
     val list1 = List(1, 2, 0, 3, 1, 2)
 
-    val list2 = list1
+    val list2 = list1.takeWhile(_ < 3)
 
     assertTrue(list2 == List(1, 2, 0))
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -97,10 +97,10 @@ object ListOperations extends Lesson {
   val dropTest = test("drop") {
     val list1 = List(1, 2, 3, 4)
 
-    val list2 = list1
+    val list2 = list1 drop 2
 
     assertTrue(list2 == List(3, 4))
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -110,10 +110,10 @@ object ListOperations extends Lesson {
   val dropWhileTest = test("dropWhile") {
     val list1 = List(1, 2, 0, 3, 1, 2)
 
-    val list2 = list1
+    val list2 = list1 dropWhile (_ < 3)
 
     assertTrue(list2 == List(3, 1, 2))
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -127,10 +127,14 @@ object ListOperations extends Lesson {
 
     val list1 = List(0, 3, 0, 2, 1)
 
-    def list2: List[Even] = list1.collect(???)
+    val partialFunction: PartialFunction[Int, Even] = {
+      case x if (isEven(x)) => Even(x)
+    }
+
+    def list2: List[Even] = list1.collect(partialFunction)
 
     assertTrue(list2 == List(Even(0), Even(0), Even(2)))
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -142,10 +146,10 @@ object ListOperations extends Lesson {
 
     val list = List(0, 3, 0, 2, 1)
 
-    val (even, odd) = list.partition(_ => ???)
+    val (even, odd) = list.partition(isEven)
 
     assertTrue(even == List(0, 0, 2) && odd == List(3, 1))
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -164,7 +168,7 @@ object ListOperations extends Lesson {
       summedList1 == None,
       summedList2 == Some(6)
     )
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -174,10 +178,10 @@ object ListOperations extends Lesson {
   val findTest = test("find") {
     val list = List(1, 2, 3, 4)
 
-    def firstGreaterThan2: Option[Int] = ???
+    def firstGreaterThan2: Option[Int] = list.find(_ > 2)
 
     assertTrue(firstGreaterThan2 == Some(3))
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -187,10 +191,10 @@ object ListOperations extends Lesson {
   val existsTest = test("exists") {
     val list = List(1, 2, 3, 4, -1, 5)
 
-    def existsNegative: Boolean = ???
+    def existsNegative: Boolean = list.exists(_ < 0)
 
     assertTrue(existsNegative)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -202,13 +206,14 @@ object ListOperations extends Lesson {
 
     val list = List(0, 2, 6, 8, 12, 10)
 
-    def forallEven: Boolean = ???
+    def forallEven: Boolean = list.forall(isEven)
 
     assertTrue(forallEven)
-  } @@ ignore
+  }
 
   def exercise =
     suite("Operations")(
+      foreachTest,
       filterTest,
       takeTest,
       takeWhileTest,
@@ -231,40 +236,40 @@ object Folds extends Lesson {
     * Using `List#foldLeft`, compute the sum of a list.
     */
   val sumTest = test("sum") {
-    def sum(list: List[Int]): Int = ???
+    def sum(list: List[Int]): Int = list.foldLeft(0)(_ + _)
 
     assertTrue(sum(List(1, 2, 3, 4, 5)) == 15)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
     * Using `List#foldLeft`, compute the maximum element of a list.
     */
   val maxTest = test("max") {
-    def max(list: List[Int]): Int = ???
+    def max(list: List[Int]): Int = list.foldLeft(Int.MinValue)((a, b) => math.max(a, b))
 
     assertTrue(max(List(1, 7, 3, 2, 4, 5)) == 7)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
     * Using `List#foldLeft`, compute the minimum element of a list.
     */
   val minTest = test("min") {
-    def min(list: List[Int]): Int = ???
+    def min(list: List[Int]): Int = list.foldLeft(Int.MaxValue)((a, b) => math.min(a, b))
 
     assertTrue(min(List(1, 7, 3, 2, 0, 4, 5)) == 0)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
     * Using `List#foldLeft`, compute the reverse of a list.
     */
   val reverseTest = test("reverse") {
-    def reverse[A](list: List[A]): List[A] = ???
+    def reverse[A](list: List[A]): List[A] = list.foldLeft(List.empty[A])((a, b) => b :: a)
 
     assertTrue(reverse(List(1, 7, 3)) == List(3, 7, 1))
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -272,10 +277,15 @@ object Folds extends Lesson {
     * satisfying a predicate, and those not satisfying the predicate.
     */
   val partitionTest = test("partition") {
-    def partition[A](list: List[A])(pred: A => Boolean): (List[A], List[A]) = ???
+
+    def partition[A](list: List[A])(pred: A => Boolean): (List[A], List[A]) = {
+      val result = list.foldLeft((List.empty[A], List.empty[A]))((a, b) => if (pred(b)) (b :: a._1, a._2) else (a._1, b :: a._2))
+      (result._1.reverse, result._2.reverse)
+    }
 
     assertTrue(partition(List(1, 7, 3))(_ < 5) == ((List(1, 3), List(7))))
-  } @@ ignore
+
+  }
 
   /** ✏ EXERCISE
     *
@@ -283,10 +293,11 @@ object Folds extends Lesson {
     * list.
     */
   val takeTest = test("take") {
-    def take[A](n: Int, list: List[A]): List[A] = ???
+    def take[A](n: Int, list: List[A]): List[A] =
+      list.foldLeft((List.empty[A], 0))((a, b: A) => if (a._2 < n) (b :: a._1, a._2 + 1) else a)._1
 
     assertTrue(take(2, List(1, 7, 3)) == List(1, 7))
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -294,10 +305,24 @@ object Folds extends Lesson {
     * for as long as a predicate is satisfied.
     */
   val takeWhileTest = test("takeWhile") {
-    def takeWhile[A](list: List[A])(pred: A => Boolean): List[A] = ???
+    //Issue is unable to halt when issue happens, keeps going, thus need state
+
+    def takeWhile[A](list: List[A])(pred: A => Boolean): List[A] = {
+      val init: (Boolean, List[A]) = (true, List.empty[A])
+
+      val res = list.foldLeft(init) {
+        case ((true, l), next) if pred(next) =>
+          (true, next :: l)
+
+        case ((_, l), _) =>
+          (false, l)
+      }
+
+      res._2.reverse
+    }
 
     assertTrue(takeWhile(List(1, 7, 3))(_ < 5) == List(1))
-  } @@ ignore
+  }
 
   def exercise =
     suite("Folds")(
@@ -321,7 +346,7 @@ object Performance extends Lesson {
   val headTailTest = test("head/tail") {
     def sum(values: Seq[Int]): Int =
       values.headOption match {
-        case None        => 0
+        case None => 0
         case Some(value) => value + sum(values.drop(1))
       }
 
@@ -422,7 +447,9 @@ object CollectionsGraduation {
       */
     def fold[Z](initial: Z)(f: (Z, V, Set[E]) => Z): Z = ???
   }
+
   object Graph {
     def empty[E, V] = Graph()
   }
+
 }

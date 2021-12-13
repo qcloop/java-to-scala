@@ -61,8 +61,8 @@ object ImplicitParameters extends Lesson {
     * time!)
     */
 
-  // implicit val fortyTwo: Int   = 42             // <- Uncomment this line
-  // val findingImplicitArguments = implicitMethod // <- Uncomment this line
+  implicit val fortyTwo: Int   = 42             // <- Uncomment this line
+  val findingImplicitArguments = implicitMethod // <- Uncomment this line
 
   /** Now that we have an implicit defined in scope, we can call the method
     * without providing an argument, and the compiler will find and supply the
@@ -82,8 +82,9 @@ object ImplicitParameters extends Lesson {
   def needsImplicitString(implicit string: String) =
     s"You dropped this: $string"
 
-//  needsImplicitString // <- Uncomment this line
+  needsImplicitString // <- Uncomment this line
 
+  implicit val fortyTwoStr: String = "43"
   /** ✏ EXERCISE
     *
     * The implicit keyword must be used at the start of a parameter list, and
@@ -99,6 +100,7 @@ object ImplicitParameters extends Lesson {
     */
   def replicate(implicit message: String, times: Int): String = message * times
 
+  val result = replicate
   /** ✏ EXERCISE
     *
     * There can only be one implicit parameter list per method, and it must be

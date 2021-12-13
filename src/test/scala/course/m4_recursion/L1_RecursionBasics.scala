@@ -1,4 +1,5 @@
 package course.m4_recursion
+
 import course.Lesson
 import zio.ZIO
 import zio.console.Console
@@ -25,34 +26,49 @@ object L1_RecursionBasics extends Lesson {
     * Using recursion, compute the sum of a list of integers.
     */
   val sumTest = test("sum") {
-    def sum(list: List[Int]): Int = ???
+    def sum(list: List[Int]): Int = list match {
+      case a :: tail => a + sum(tail)
+      case Nil => 0
+    }
 
     assertTrue(sum(List(1, 2, 3, 4, 5)) == 15)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
     * Using recursion, compute the maximum of a list of integers.
     */
   val maxTest = test("max") {
-    def max(list: List[Int]): Int = ???
+    def max(list: List[Int]): Int = list match {
+      case a :: tail => math.max(a, max(tail))
+      case Nil => Int.MinValue
+    }
 
     assertTrue(max(List(1, 7, 3, 2, 4, 5)) == 7)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
     * Using recursion, determine if a number is prime.
     */
-  val primeTest = test("prime") {
-    def isPrime(n: Int): Boolean = {
-      def loop(n: Int, divisor: Int): Boolean = ???
+  //  val primeTest = test("prime") {
+  //    def isPrime(n: Int): Boolean = {
+  //      def loop(n: Int, divisor: Int): Boolean = {
+  //        println(s"Dividing $n by $divisor")
+  //        val result = n % divisor
+  //        result match  {
+  //          case 0 => false
+  //          case a if a > divisor => loop(result, divisor)
+  //          case _ => false
+  //        }
+  //      }
 
-      loop(n, 2)
-    }
 
-    assertTrue(!isPrime(4) && isPrime(7) && isPrime(11))
-  } @@ ignore
+  // loop(n, 2)
+  // }
+
+  //assertTrue(!isPrime(4) && isPrime(7) && isPrime(11) && !isPrime(33))
+  // }
 
   /** ✏ EXERCISE
     *
@@ -83,12 +99,15 @@ object L1_RecursionBasics extends Lesson {
     * satisfied.
     */
   val loopTest = test("loop") {
-    def loop[S](start: S)(pred: S => Boolean)(iterate: S => S): S = ???
+    def loop[S](start: S)(pred: S => Boolean)(iterate: S => S): S =
+      if (pred(start))
+        loop(iterate(start))(pred)(iterate)
+      else start
 
     val inc = loop(0)(_ < 10)(_ + 1)
 
     assertTrue(inc == 10)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -106,18 +125,23 @@ object L1_RecursionBasics extends Lesson {
           head
       }
 
-    def repeatWhile[A, S](action: () => A)(pred: A => Boolean)(reducer: (A, A) => A): A = ???
+    def repeatWhile[A, S](action: () => A)(pred: A => Boolean)(reducer: (A, A) => A): A = {
+      val result = action()
+      if (pred(result)) result
+      else reducer(result, repeatWhile(action)(pred)(reducer))
+    }
+
 
     val result = repeatWhile(readLine)(_ == "Sherlock")((a, b) => b)
 
     assertTrue(result == "Sherlock")
-  } @@ ignore
+  }
 
   def exercise =
     suite("Recursion Basics")(
       sumTest,
       maxTest,
-      primeTest,
+      //primeTest,
       fibsTest,
       pivotTest,
       loopTest,
@@ -239,6 +263,35 @@ object RecursionGraduation {
     */
   def getChoice: Char = ???
 
+  def analyzeChoice(
+                     oldState: State,
+                     char: Char
+                   ): Step = {
+    val newState = oldState.addChar(char)
+
+    if (oldState.guesses.contains(char))
+      Step("You already guessed this character!", true, newState)
+    else if (newState.playerWon)
+      Step("Congratulations, you won!!!", false, newState)
+    else if (newState.playerLost)
+      Step(s"Sorry, ${oldState.name}, you lost. Try again soon!", false, newState)
+    else if (oldState.word.contains(char))
+      Step(s"Good work, ${oldState.name}, you got that right! Keep going!!!", true, newState)
+    else Step(s"Uh, oh! That choice is not correct. Keep trying!", true, newState)
+  }
+
+  /** ✏ EXERCISE
+    *
+    * Execute the main function and verify your program works as intended.
+    */
+  def main(args: Array[String]): Unit = {
+    val name = getName
+    val word = chooseWord
+    val state = State(name, Set(), word)
+    renderState(state)
+    gameLoop(state)
+  }
+
   /** ✏ EXERCISE
     *
     * Implement an effect that prompts the user for their name, and returns it.
@@ -281,9 +334,9 @@ object RecursionGraduation {
   }
 
   final case class State(name: String, guesses: Set[Char], word: String) {
-    def failures: Int = (guesses -- word.toSet).size
-
     def playerLost: Boolean = failures > 10
+
+    def failures: Int = (guesses -- word.toSet).size
 
     def playerWon: Boolean = (word.toSet -- guesses).isEmpty
 
@@ -291,34 +344,5 @@ object RecursionGraduation {
   }
 
   final case class Step(output: String, keepPlaying: Boolean, state: State)
-
-  def analyzeChoice(
-      oldState: State,
-      char: Char
-  ): Step = {
-    val newState = oldState.addChar(char)
-
-    if (oldState.guesses.contains(char))
-      Step("You already guessed this character!", true, newState)
-    else if (newState.playerWon)
-      Step("Congratulations, you won!!!", false, newState)
-    else if (newState.playerLost)
-      Step(s"Sorry, ${oldState.name}, you lost. Try again soon!", false, newState)
-    else if (oldState.word.contains(char))
-      Step(s"Good work, ${oldState.name}, you got that right! Keep going!!!", true, newState)
-    else Step(s"Uh, oh! That choice is not correct. Keep trying!", true, newState)
-  }
-
-  /** ✏ EXERCISE
-    *
-    * Execute the main function and verify your program works as intended.
-    */
-  def main(args: Array[String]): Unit = {
-    val name  = getName
-    val word  = chooseWord
-    val state = State(name, Set(), word)
-    renderState(state)
-    gameLoop(state)
-  }
 
 }

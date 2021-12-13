@@ -168,6 +168,10 @@ object NullBasics extends Lesson {
           }
       }
 
+    def getLatLong2(user: User): Option[LatLong] =
+      user.profile.flatMap(p => p.location.flatMap(l => l.latLong))
+
+
     val latLong = LatLong(123, 123)
 
     val user = User("Holmes", Some(Profile(Some(Location("UK", Some(latLong))))))
@@ -204,12 +208,32 @@ object MigrateFromNullToOption extends Lesson {
         else Some(value)
       }
 
-      def getIntProperty(name: String): Option[Int] = getProperty(name).map(n => n.toInt)
+      def getIntProperty(name: String): Option[Int] = getProperty(name).flatMap(n => try {
+        Some(n.toInt)
+      } catch {
+        case _: NumberFormatException => None
+      })
 
-      def getBoolProperty(name: String): Option[Boolean] = getProperty(name).map(n => n.toBoolean)
+      def getIntProperty2(name: String): Option[Int] = getProperty(name).flatMap(_.toIntOption)
+
+      def getBoolProperty(name: String): Option[Boolean] = getProperty(name).flatMap(n => try {
+        Some(n.toBoolean)
+      } catch {
+        case _: IllegalArgumentException => None
+      })
     }
 
-    assertTrue(SafeProperty.getProperty("foo.bar") == None)
+    System.setProperty("number", "888")
+    System.setProperty("boolean", "true")
+
+    assertTrue(
+      SafeProperty.getProperty("foo.bar") == None,
+      SafeProperty.getIntProperty("foo.bar") == None,
+      SafeProperty.getBoolProperty("foo.bar") == None,
+      SafeProperty.getProperty("user.dir").isDefined,
+      SafeProperty.getIntProperty2("number").isDefined,
+      SafeProperty.getProperty("boolean").isDefined
+    )
   }
 
   /** ✏ EXERCISE
@@ -239,7 +263,7 @@ object MigrateFromNullToOption extends Lesson {
         s <- a.street
       } yield s
 
-    def assertFails(value: => Any) = assertTrue(value == null)
+    def assertFails(value: => Any) = assertTrue(value == None)
 
     assertFails(getStreet(user1)) &&
       assertFails(getStreet(user2)) &&
