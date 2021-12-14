@@ -94,8 +94,8 @@ object L1_Exercises extends Lesson {
     *       containing object
     *     - In VSCode, you can click on the run button directly above the
     *       containing object
-    *     - Otherwise, you may run `testOnly **.L1_Exercises*` (or the
-    *       respective lesson name) after launching `sbt`
+    *     - Otherwise, you may run `testOnly *L1_Exercises*` (or the respective
+    *       lesson name) after launching `sbt`
     *   - Rinse & Repeat, until all tests are passing
     */
 
@@ -106,6 +106,7 @@ object L1_Exercises extends Lesson {
     test("example") {
       assertTrue(add(12, 88) == 100)
     }
+
 
   /** ✏ EXERCISE
     *
@@ -131,10 +132,10 @@ object L1_Exercises extends Lesson {
     * definition"
     *
     * If you're using VSCode: Position your cursor in `fillInTheType`, hit
-    * Option-Enter, and then select "Insert type annotation"
+    * Command-Period, and then select "Insert type annotation"
     */
 
-  val fillInTheType = "What am I?"
+  val fillInTheType: Int = 123
 
   /** ☃︎ EXAMPLE
     *
@@ -143,7 +144,7 @@ object L1_Exercises extends Lesson {
     * language. As always, feel free to experiment with or modify these.
     */
 
-  val `if you surround an identifier in back ticks, you con do crazy things` =
+  val `this nonsense` =
     "cool."
 
   // All Exercises

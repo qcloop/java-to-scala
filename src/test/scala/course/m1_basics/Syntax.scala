@@ -8,6 +8,7 @@ package course.m1_basics
 // - Purity
 // - Functions as Values
 
+
 object Counter {
   var value: Int = 0
 
@@ -16,6 +17,7 @@ object Counter {
     value
   }
 }
+
 object Example extends App {
 
   def foo(x: Int) : Unit =

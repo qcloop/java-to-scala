@@ -208,6 +208,7 @@ object L1_SealedTraits extends Lesson {
       //      lazy val left: Direction  = Left
       //      lazy val right: Direction = Right
 
+
       assertTrue(
         anyDirection.turnRight.turnRight.turnRight.turnRight == anyDirection,
         anyDirection.turnRight.turnLeft == anyDirection,
@@ -215,6 +216,7 @@ object L1_SealedTraits extends Lesson {
         //        up.flip == down,
         //        right.flip == left,
         //        right.turnRight == down,
+
       )
     } @@ ignore
 

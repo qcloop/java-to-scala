@@ -4,7 +4,7 @@ import course.Guess.guessType
 import course.Lesson.???
 import course.SomeType.same
 import course.{Guess, Lesson}
-import zio.test.TestAspect._
+import zio.test.TestAspect.ignore
 import zio.test._
 
 /** Functions are fundamental to functional programming. In a functional
@@ -320,12 +320,11 @@ object PredicateExercise {
     // # CONSTRUCTORS
     // Constructors are ways to create a type.
 
-    val always: Predicate[Any] = { _ => true }
+    val always: Predicate[Any] = ???
 
-    val never: Predicate[Any] = { _ => false }
+    val never: Predicate[Any] = ???
 
-    // A => A => Boolean
-    def equalTo[A](value: A): Predicate[A] = { a => value == a }
+    def equalTo[A](value: A): Predicate[A] = ???
 
     def between(lower: Int, upper: Int): Predicate[Int] =
       and(lessThan(upper), greaterThan(lower))
@@ -333,9 +332,11 @@ object PredicateExercise {
     // lessThan:  Predicate[Int]
     def lessThan(value: Int): Predicate[Int] = { a => a < value }
 
-    def greaterThan(value: Int): Predicate[Int] = { a => a > value }
+
+    def greaterThan(value: Int): Predicate[Int] = ???
 
     def and[A](p1: Predicate[A], p2: Predicate[A]): Predicate[A] = { a => (p1(a) && p2(a)) }
+
 
     // # COMBINATORS
     // Combinators are ways to combine a type.
@@ -343,9 +344,21 @@ object PredicateExercise {
     def outside(lower: Int, upper: Int): Predicate[Int] =
       and(lessThan(lower), greaterThan(upper))
 
-    def or[A](p1: Predicate[A], p2: Predicate[A]): Predicate[A] = a => (p1(a) || p2(a))
+
+    def or[A](p1: Predicate[A], p2: Predicate[A]): Predicate[A] = ???
 
   }
+
+
+  val intPredicate = Predicate.or(Predicate.equalTo(42), Predicate.between(100, 200))
+
+  def printPredicate[A](predicate: Predicate[A], value: A): Unit = {
+    val result = predicate(value)
+    println(s"$value is $result")
+  }
+
+  def main(args: Array[String]): Unit =
+    printPredicate(intPredicate, 42)
 
 }
 

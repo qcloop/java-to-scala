@@ -17,7 +17,7 @@ object NullBasics extends Lesson {
   /** ✏ EXERCISE
     *
     * The `parentOf` function returns `null` for some paths. Modify the function
-    * to return `Option[File]` rather than `File | Null`.
+    * to return `Option[String]` rather than `File | Null`.
     */
   val applyTest = test("apply") {
     import java.io.File
@@ -32,6 +32,7 @@ object NullBasics extends Lesson {
 
     assertTrue(parentOf("") != null)
     assertTrue(parentOf2("") != null)
+
   }
 
   /** ✏ EXERCISE
@@ -46,11 +47,12 @@ object NullBasics extends Lesson {
       case x => Some(x)
     }
 
-    val nullInt = null.asInstanceOf[Int]
+    val nullString = null.asInstanceOf[String]
 
     assertTrue(fromNullable(nullInt) == None
       && fromNullable(42) == Some(42)
       && fromNullable(null) == None)
+
   }
 
   /** ✏ EXERCISE
@@ -89,6 +91,12 @@ object NullBasics extends Lesson {
     assertTrue(convert(option) == Some(42.toChar))
   }
 
+    assertTrue(
+      convert(option) == Some(42.toChar),
+      convert(Option.empty[Int]) == None
+    )
+  }
+
   /** ✏ EXERCISE
     *
     * Implement the function `both`, which can combine two options into a single
@@ -114,13 +122,14 @@ object NullBasics extends Lesson {
     assertTrue(both(Some(42), Some(24)) == Some((42, 24)))
     assertTrue(both2(Some(42), None) == None)
   }
+    
 
   /** ✏ EXERCISE
     *
     * Implement the function `firstOf`, which can combine two options into a
     * single option by using the first available value.
     */
-  val oneOfTest = test("oneOf") {
+  val firstOfTest = test("firstOf") {
     def firstOf[A](left: Option[A], right: Option[A]): Option[A] =
       if (!left.isEmpty) left
       else if (!right.isEmpty) right
@@ -128,6 +137,7 @@ object NullBasics extends Lesson {
 
     assertTrue(firstOf(None, Some(24)) == Some(24))
   }
+
 
   /** ✏ EXERCISE
     *
@@ -144,7 +154,12 @@ object NullBasics extends Lesson {
         case None => None
       }
 
-    assertTrue(chain(Some(42), (x: Int) => if (x < 10) None else Some(x)) == Some(42))
+
+    assertTrue(
+      chain(Some(42), (x: Int) => if (x < 10) None else Some(x)) == Some(42),
+      chain(Some(5), (x: Int) => if (x < 10) None else Some(x)) == None,
+      chain(None, (x: Int) => if (x < 10) None else Some(x)) == None
+    )
   }
 
   /** ✏ EXERCISE
@@ -187,7 +202,7 @@ object NullBasics extends Lesson {
       getOrElseTest,
       mapTest,
       bothTest,
-      oneOfTest,
+      firstOfTest,
       chainTest,
       flatMapTest
     )
@@ -226,13 +241,11 @@ object MigrateFromNullToOption extends Lesson {
     System.setProperty("number", "888")
     System.setProperty("boolean", "true")
 
-    assertTrue(
-      SafeProperty.getProperty("foo.bar") == None,
-      SafeProperty.getIntProperty("foo.bar") == None,
-      SafeProperty.getBoolProperty("foo.bar") == None,
+
       SafeProperty.getProperty("user.dir").isDefined,
       SafeProperty.getIntProperty2("number").isDefined,
       SafeProperty.getProperty("boolean").isDefined
+      SafeProperty.getProperty("user.dir").isDefined
     )
   }
 
