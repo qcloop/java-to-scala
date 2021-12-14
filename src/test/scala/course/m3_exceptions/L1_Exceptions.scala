@@ -22,7 +22,11 @@ object ExceptionConstructors extends Lesson {
     * Modify `parseInt` to return an `Option`.
     */
   val optionTest = test("Option") {
-    def parseInt(s: String) = s.toInt
+    def parseInt(s: String) = try {
+      Some(s.toInt)
+    } catch {
+      case e => None
+    }
 
     def test = (parseInt(""): Any) match {
       case None => "None"
@@ -30,7 +34,7 @@ object ExceptionConstructors extends Lesson {
     }
 
     assertTrue(test == "None")
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -39,7 +43,7 @@ object ExceptionConstructors extends Lesson {
   val tryTest = test("Try") {
     import scala.util._
 
-    def parseInt(s: String) = s.toInt
+    def parseInt(s: String) = Try(s.toInt)
 
     def test = (parseInt(""): Any) match {
       case Failure(_) => "Failure"
@@ -47,7 +51,7 @@ object ExceptionConstructors extends Lesson {
     }
 
     assertTrue(test == "Failure")
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -55,7 +59,12 @@ object ExceptionConstructors extends Lesson {
     * parse an integer.
     */
   val eitherTest = test("Either") {
-    def parseInt(s: String) = s.toInt
+    def parseInt(s: String) =
+      try {
+        Right(s.toInt)
+      } catch {
+        case e => Left(e)
+      }
 
     def test = (parseInt(""): Any) match {
       case Left(_) => "Left"
@@ -63,7 +72,7 @@ object ExceptionConstructors extends Lesson {
     }
 
     assertTrue(test == "Left")
-  } @@ ignore
+  }
 
   def exercise =
     suite("Constructors")(
@@ -89,14 +98,12 @@ object MappingExceptions extends Lesson {
 
     object Id {
       def fromString(value: String): Option[Id] = {
-        parseInt(value)
-
-        ???
+        parseInt(value).map(Id(_))
       }
     }
 
     assertTrue(Id.fromString("123").isDefined)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -113,14 +120,12 @@ object MappingExceptions extends Lesson {
 
     object Id {
       def fromString(value: String): Try[Id] = {
-        parseInt(value)
-
-        ???
+        parseInt(value).map(Id(_))
       }
     }
 
     assertTrue(Id.fromString("123").isSuccess)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -139,14 +144,12 @@ object MappingExceptions extends Lesson {
 
     object Id {
       def fromString(value: String): Either[String, Id] = {
-        parseInt(value)
-
-        ???
+        parseInt(value).map(Id(_))
       }
     }
 
     assertTrue(Id.fromString("123").isRight)
-  } @@ ignore
+  }
 
   def exercise =
     suite("Mapping Exceptions")(

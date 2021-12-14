@@ -156,35 +156,48 @@ object L2_TailRecursion extends Lesson {
     * Write a tail-recursive version of the previous `sum`.
     */
   val sumTest = test("sum") {
-    // @tailrec
-    def sum(list: List[Int]): Int = ???
+    @tailrec
+    def loop(sum: Int, list: List[Int]): Int = list match {
+      case Nil => sum
+      case h :: t => loop(sum + h, t)
+    }
+
+    def sum(list: List[Int]): Int = loop(0, list)
 
     assertTrue(sum(List(1, 2, 3, 4, 5)) == 15)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
     * Write a tail-recursive version of the previous `max`.
     */
   val maxTest = test("max") {
-    // @tailrec
-    def max(list: List[Int]): Int = ???
+    @tailrec
+    def loop(max: Int, list: List[Int]): Int =
+      list match {
+        case Nil => max
+        case h :: t => loop(math.max(max, h), t)
+      }
+
+    def max(list: List[Int]): Int = loop(Int.MinValue, list)
 
     assertTrue(max(List(1, 7, 3, 2, 4, 5)) == 7)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
     * Write a tail-recursive version of the previous `loop`.
     */
   val loopTest = test("loop") {
-    // @tailrec
-    def loop[S](start: S)(pred: S => Boolean)(iterate: S => S): S = ???
+    @tailrec
+    def loop[S](start: S)(pred: S => Boolean)(iterate: S => S): S = if (pred(start))
+      loop(iterate(start))(pred)(iterate)
+    else start
 
     val inc = loop(0)(_ < 10)(_ + 1)
 
     assertTrue(inc == 10)
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -201,13 +214,19 @@ object L2_TailRecursion extends Lesson {
           head
       }
 
-    // @tailrec
-    def repeatWhile[A, S](action: () => A)(pred: A => Boolean)(reducer: (A, A) => A): A = ???
+    def repeatWhile[A, S](action: () => A)(pred: A => Boolean)(reducer: (A, A) => A): A = {
+      @tailrec
+      def loop(action: () => A)(pred: A => Boolean)(reducer: (A, A) => A)(result: A): A = {
+        if (pred(result)) result
+        else loop(action)(pred)(reducer)(reducer(result, action()))
+      }
 
+      loop(action)(pred)(reducer)(action())
+    }
     val result = repeatWhile(readLine)(_ == "Sherlock")((a, b) => b)
 
     assertTrue(result == "Sherlock")
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -215,12 +234,20 @@ object L2_TailRecursion extends Lesson {
     *
     * WARNING: Advanced.
     */
-  val fibsTest = test("fibs") {
-    // @tailrec
-    def fib(n: Int): Int = ???
+  val fibsTestTailRec = test("fibsTestTailRec") {
 
-    assertTrue(fib(3) == 2 && fib(4) == 3 && fib(5) == 5)
-  } @@ ignore
+    def fib2(n: Int): Int = {
+      @tailrec
+      def loop(n: Int, n_2: Int, n_1: Int): Int =
+        if (n == 0) n_1
+        else if (n == 1) n_1
+        else loop(n - 1, n_1, n_2 + n_1)
+
+      loop(n, 0, 1)
+    }
+
+    assertTrue(fib2(3) == 2 && fib2(4) == 3 && fib2(5) == 5)
+  }
 
   /** ✏ EXERCISE
     *
@@ -241,7 +268,7 @@ object L2_TailRecursion extends Lesson {
       maxTest,
       loopTest,
       repeatTest,
-      fibsTest,
+      fibsTestTailRec,
       pivotSortTest
     )
 }

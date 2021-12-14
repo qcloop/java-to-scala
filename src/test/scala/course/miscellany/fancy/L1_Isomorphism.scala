@@ -37,7 +37,7 @@ object L1_Isomorphism extends Lesson {
         toggleToBoolean(On) == true,
         toggleToBoolean(Off) == false
       )
-    } @@ ignore
+    }
 
   // A mapping from `Boolean` to `Toggle`
   def booleanToToggle(boolean: Boolean): Toggle =
@@ -49,7 +49,7 @@ object L1_Isomorphism extends Lesson {
         booleanToToggle(true) == On,
         booleanToToggle(false) == Off
       )
-    } @@ ignore
+    }
 
   val roundTripping =
     test("Boolean <-> Toggle") {
@@ -59,7 +59,7 @@ object L1_Isomorphism extends Lesson {
         booleanToToggle(toggleToBoolean(On)) == On,
         booleanToToggle(toggleToBoolean(Off)) == Off
       )
-    } @@ ignore
+    }
 
   def exercise =
     suite("Isomorphism")(
