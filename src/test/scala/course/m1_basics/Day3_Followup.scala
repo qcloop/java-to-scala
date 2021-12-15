@@ -124,7 +124,7 @@ object MyPartialFunction {
           f(in)
           true
         } catch {
-          case _ => false
+          case e: Throwable => false
         }
 
       override def apply(in: In): Out = f(in)

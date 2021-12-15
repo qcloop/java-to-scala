@@ -37,12 +37,12 @@ object L4_Cardinality extends Lesson {
     *
     * List every possible Boolean value.
     */
-  val allValues: Set[Boolean] = Set() // <- Add every possible Boolean value, separated by commas
+  val allValues: Set[Boolean] = Set(true, false) // <- Add every possible Boolean value, separated by commas
 
   val testAllBooleanValues =
     test("all Boolean values") {
       assertTrue(allValues == Answers.allBooleanValues)
-    } @@ ignore
+    }
 
   /** CARDINALITY
     *
@@ -52,12 +52,12 @@ object L4_Cardinality extends Lesson {
     *
     * Change the value from 0 to the actual cardinality of `Boolean`.
     */
-  val booleanCardinality: Int = 0 // <- Update the cardinality here
+  val booleanCardinality: Int = 2 // <- Update the cardinality here
 
   val testBoolean =
     test("Boolean cardinality") {
       assertTrue(booleanCardinality == Answers.booleanCardinality)
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -65,12 +65,12 @@ object L4_Cardinality extends Lesson {
     */
   case object TheThing
 
-  val theThingCardinality: Int = 0 // <- Update the cardinality here
+  val theThingCardinality: Int = 1 // <- Update the cardinality here
 
   val testTheThing =
     test("TheThing cardinality") {
       assertTrue(theThingCardinality == Answers.theThingCardinality)
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -84,12 +84,12 @@ object L4_Cardinality extends Lesson {
     case object Scissors extends RPS
   }
 
-  val rpsCardinality: Int = 0 // <- Update the cardinality here
+  val rpsCardinality: Int = 3 // <- Update the cardinality here
 
   val testRPS =
     test("RPS cardinality") {
       assertTrue(rpsCardinality == Answers.rpsCardinality)
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -97,7 +97,7 @@ object L4_Cardinality extends Lesson {
     */
   final case class RPSRound(playerOne: RPS, playerTwo: RPS)
 
-  val rpsRoundCardinality: Int = 0 // <- Update the cardinality here
+  val rpsRoundCardinality: Int = 9 // <- Update the cardinality here
 
   val testRPSRound =
     test("RPS cardinality") {
@@ -106,7 +106,7 @@ object L4_Cardinality extends Lesson {
       val allRounds = for { m1 <- moves; m2 <- moves } yield RPSRound(m1, m2)
 
       assertTrue(rpsRoundCardinality == allRounds.length)
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -119,12 +119,12 @@ object L4_Cardinality extends Lesson {
     final case class Thumb(thumbPointedUp: Boolean) extends RPSThumb
   }
 
-  val rpsThumbCardinality: Int = 0 // <- Update the cardinality here
+  val rpsThumbCardinality: Int = 5 // <- Update the cardinality here
 
   val testRPSThumb =
     test("RPSThumb cardinality") {
       assertTrue(rpsThumbCardinality == Answers.rpsThumbCardinality)
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -132,16 +132,16 @@ object L4_Cardinality extends Lesson {
     */
   final case class Box[A](content: A, isWrapped: Boolean)
 
-  val boxCardinality: Int = 0 // <- Update the cardinality here
+  val boxCardinality: Int = 2 // <- Update the cardinality here, actually unknown
 
   type BooleanBox = Box[Boolean]
-  val booleanBoxCardinality: Int = 0 // <- Update the cardinality here
+  val booleanBoxCardinality: Int = 4 // <- Update the cardinality here
 
   type RPSRoundBox = Box[RPSRound]
-  val rpsRoundBoxCardinality: Int = 0 // <- Update the cardinality here
+  val rpsRoundBoxCardinality: Int = 18// <- Update the cardinality here
 
   type BooleanBoxBox = Box[Box[Boolean]]
-  val booleanBoxBoxCardinality: Int = 0 // <- Update the cardinality here
+  val booleanBoxBoxCardinality: Int = 8 // <- Update the cardinality here
 
   val testBox =
     test("Box cardinality") {
@@ -150,7 +150,7 @@ object L4_Cardinality extends Lesson {
         rpsRoundBoxCardinality == Answers.rpsRoundBoxCardinality,
         booleanBoxBoxCardinality == Answers.booleanBoxBoxCardinality
       )
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -163,29 +163,29 @@ object L4_Cardinality extends Lesson {
     final case object None             extends Option[Nothing]
   }
 
-  val optionCardinality: Int = 0 // <- Update the cardinality here
+  val optionCardinality: Int = 2 // <- Update the cardinality here
 
   // Option[Boolean]
-  val optionBooleanCardinality: Int = 0 // <- Update the cardinality here
+  val optionBooleanCardinality: Int = 3 // <- Update the cardinality here
 
   // Option[RPS]
-  val optionRPSCardinality: Int = 0 // <- Update the cardinality here
+  val optionRPSCardinality: Int = 4 // <- Update the cardinality here
 
   // Option[Option[Boolean]]
-  val optionOptionBooleanCardinality: Int = 0 // <- Update the cardinality here
+  val optionOptionBooleanCardinality: Int = 4 // <- Update the cardinality here
 
   // Option[Box[Option[RPS]]]
-  val optionBoxOptionRPSCardinality: Int = 0 // <- Update the cardinality here
+  val optionBoxOptionRPSCardinality: Int = 9 // <- Update the cardinality here
 
   val testOption =
-    test("RPSThumb cardinality") {
+    test("Option cardinality") {
       assertTrue(
         optionBooleanCardinality == Answers.optionBooleanCardinality,
         optionRPSCardinality == Answers.optionRPSCardinality,
         optionOptionBooleanCardinality == Answers.optionOptionBooleanCardinality,
         optionBoxOptionRPSCardinality == Answers.optionBoxOptionRPSCardinality
       )
-    } @@ ignore
+    }
 
   def exercise =
     suite("Counting")(

@@ -49,7 +49,7 @@ object NullBasics extends Lesson {
 
     val nullString = null.asInstanceOf[String]
 
-    assertTrue(fromNullable(nullInt) == None
+    assertTrue(fromNullable(nullString) == None
       && fromNullable(42) == Some(42)
       && fromNullable(null) == None)
 
@@ -88,13 +88,7 @@ object NullBasics extends Lesson {
       case None => None
     }
 
-    assertTrue(convert(option) == Some(42.toChar))
-  }
-
-    assertTrue(
-      convert(option) == Some(42.toChar),
-      convert(Option.empty[Int]) == None
-    )
+    assertTrue(convert(option) == Some(42.toChar), convert(Option.empty[Int]) == None )
   }
 
   /** ✏ EXERCISE
@@ -241,10 +235,10 @@ object MigrateFromNullToOption extends Lesson {
     System.setProperty("number", "888")
     System.setProperty("boolean", "true")
 
-
+    assertTrue(
       SafeProperty.getProperty("user.dir").isDefined,
       SafeProperty.getIntProperty2("number").isDefined,
-      SafeProperty.getProperty("boolean").isDefined
+      SafeProperty.getProperty("boolean").isDefined,
       SafeProperty.getProperty("user.dir").isDefined
     )
   }

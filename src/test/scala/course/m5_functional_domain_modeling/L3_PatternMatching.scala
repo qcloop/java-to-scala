@@ -20,10 +20,12 @@ object L3_PatternMatching extends Lesson {
   val testSimple = test("simple") {
     final case class Address(street: String)
 
-    def extractStreet(address: Address): String = ???
+    def extractStreet(address: Address): String = address match {
+      case Address(street) => street
+    }
 
     assertTrue(extractStreet(Address("221B Baker")) == "221B Baker")
-  } @@ ignore
+  }
 
   /** ✏ EXERCISE
     *
@@ -34,10 +36,11 @@ object L3_PatternMatching extends Lesson {
     test("wildcard") {
       final case class Address(street: String, postalCode: String)
 
-      def extractPostalCode(address: Address): String = ???
-
+      def extractPostalCode(address: Address): String = address match {
+        case Address(street, code) => code
+      }
       assertTrue(extractPostalCode(Address("221B Baker", "NW1 6XE")) == "NW1 6XE")
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -49,13 +52,16 @@ object L3_PatternMatching extends Lesson {
     test("constant") {
       final case class Address(street: String, postalCode: String)
 
-      def is221B(address: Address): Boolean = ???
+      def is221B(address: Address): Boolean = address.street match {
+        case "221B Baker" => true
+        case _ => false
+      }
 
       assertTrue(
         is221B(Address("221B Baker", "NW1 6XE")),
         !is221B(Address("123 Green Street", "NW1 6XE"))
       )
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -78,7 +84,12 @@ object L3_PatternMatching extends Lesson {
         case object Unknown extends Deduction
       }
 
-      def neighbor(address: Address): Deduction = ??? // <- Implement with pattern matching and multiple ordered cases
+      def neighbor(address: Address): Deduction = address match {
+        case Address(221, "Baker", "NW1 6XE") => Deduction.Holmes
+        case Address(_, "Baker", "NW1 6XE") => Deduction.Neighbor
+        case _ => Deduction.Unknown
+
+      } // <- Implement with pattern matching and multiple ordered cases
 
       assertTrue(
         neighbor(Address(221, "Baker", "NW1 6XE")) == Deduction.Holmes,
@@ -88,7 +99,7 @@ object L3_PatternMatching extends Lesson {
         neighbor(Address(221, "Green", "NW1 6XE")) == Deduction.Unknown,
         neighbor(Address(180, "Green", "NW1 6XE")) == Deduction.Unknown
       )
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -99,10 +110,13 @@ object L3_PatternMatching extends Lesson {
     test("pattern guards") {
       final case class Address(street: String, postalCode: String)
 
-      def isBaker(address: Address): Boolean = ???
+      def isBaker(address: Address): Boolean = address match {
+        case Address(street, _) if street.contains("Baker") => true
+        case _ => false
+      }
 
       assertTrue(isBaker(Address("220 Baker", "NW1 6XE")))
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -115,12 +129,14 @@ object L3_PatternMatching extends Lesson {
       final case class Person(name: String, address: Address)
       final case class Address(street: String, postalCode: String)
 
-      def extractPostalCode(person: Person): String = ???
+      def extractPostalCode(person: Person): String = person match {
+        case Person(_, Address(_, postalCode)) => postalCode
+      }
 
       val sherlock = Person("Sherlock Holmes", Address("221B Baker", "NW1 6XE"))
 
       assertTrue(extractPostalCode(sherlock) == "NW1 6XE")
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -133,12 +149,15 @@ object L3_PatternMatching extends Lesson {
 
       val sherlockStreet = "Baker"
 
-      def isSherlockStreet(address: Address): Boolean = ???
+      def isSherlockStreet(address: Address): Boolean =  address match {
+        case Address(street, `sherlockStreet`, _)  => true
+        case _ => false
+      }
 
       val address = Address("220", "Baker", "NW1 6XE")
 
       assertTrue(isSherlockStreet(address))
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -158,7 +177,12 @@ object L3_PatternMatching extends Lesson {
         case object IsOther  extends ScanResult
       }
 
-      def scan(box: Box): ScanResult = ??? // <- Implement this method
+      def scan(box: Box): ScanResult = box match {
+        case Box(_: String) => ScanResult.IsString
+        case Box(_: Int) => ScanResult.IsInt
+        case Box(_: Puppy) => ScanResult.IsPuppy
+        case _ => ScanResult.IsOther
+      }
 
       assertTrue(
         scan(Box("Hello")) == ScanResult.IsString,
@@ -167,7 +191,7 @@ object L3_PatternMatching extends Lesson {
         scan(Box(true)) == ScanResult.IsOther,
         scan(Box(Puppy("Crumb", isWearingHat = true))) == ScanResult.IsPuppy
       )
-    } @@ ignore
+    }
 
   def exercise =
     suite("PatternMatching")(

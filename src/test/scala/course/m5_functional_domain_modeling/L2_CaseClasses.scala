@@ -21,10 +21,10 @@ object L2_CaseClasses extends Lesson {
     */
   val testFields =
     test("fields") {
-      class Person(name: String, age: Int) // <- Convert this to a case class
+      case class Person(name: String, age: Int) // <- Convert this to a case class
 
-      def getName(person: Person): String = ??? // <- Complete these
-      def getAge(person: Person): Int     = ??? // <- Complete these
+      def getName(person: Person): String = person.name // <- Complete these
+      def getAge(person: Person): Int     = person.age // <- Complete these
 
       val holmes = new Person("Sherlock Holmes", 42)
 
@@ -32,7 +32,7 @@ object L2_CaseClasses extends Lesson {
         getName(holmes) == "Sherlock Holmes",
         getAge(holmes) == 42
       )
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -42,14 +42,14 @@ object L2_CaseClasses extends Lesson {
     */
   val testApply =
     test("apply") {
-      class Person(name: String, age: Int) // <- Convert this to a case class
+      case class Person(name: String, age: Int) // <- Convert this to a case class
 
       object Person {
         def apply(name: String, age: Int) = new Person(name, age)
       }
 
       assertTrue(Person("Sherlock Holmes", 42) == Person("Sherlock Holmes", 42))
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -57,10 +57,10 @@ object L2_CaseClasses extends Lesson {
     * it into a case class.
     */
   val testEquals = test("equals") {
-    class Profile(val age: Int) // <- Convert this to a case class
+   case class Profile(val age: Int) // <- Convert this to a case class
 
-    assertTrue(new Profile(42) == new Profile(42))
-  } @@ ignore
+    assertTrue(Profile(42) == Profile(42))
+  }
 
   /** ✏ EXERCISE
     *
@@ -69,10 +69,10 @@ object L2_CaseClasses extends Lesson {
     */
   val testHashCode =
     test("hashCode") {
-      class CreditCard(val number: String) // <- Convert this to a case class
+      case class CreditCard(val number: String) // <- Convert this to a case class
 
-      assertTrue(new CreditCard("123").hashCode == new CreditCard("123").hashCode)
-    } @@ ignore
+      assertTrue( CreditCard("123").hashCode == CreditCard("123").hashCode)
+    }
 
   /** ✏ EXERCISE
     *
@@ -81,10 +81,10 @@ object L2_CaseClasses extends Lesson {
     */
   val testToString =
     test("toString") {
-      class Address(val street: String) // <- Convert this to a case class
+      case class Address(val street: String) // <- Convert this to a case class
 
-      assertTrue(new Address("221B Baker Street").toString == "Address(221B Baker Street)")
-    } @@ ignore
+      assertTrue( Address("221B Baker Street").toString == "Address(221B Baker Street)")
+    }
 
   /** ✏ EXERCISE
     *
@@ -93,18 +93,12 @@ object L2_CaseClasses extends Lesson {
     */
   val testCopy =
     test("copy") {
-      class Permissions(canRead: Boolean, canWrite: Boolean, canShare: Boolean) { // <- Convert this to a case class
-        def copy(
-            canRead: Boolean = this.canRead,
-            canWrite: Boolean = this.canWrite,
-            canShare: Boolean = this.canShare
-        ): Permissions = ???
-      }
+      case class Permissions(canRead: Boolean, canWrite: Boolean, canShare: Boolean)
 
       val perms = new Permissions(true, false, false)
 
       assertTrue(perms.copy(canRead = false) == new Permissions(false, false, false))
-    } @@ ignore
+    }
 
   def exercise = suite("Case Classes")(
     testFields,

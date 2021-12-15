@@ -24,14 +24,25 @@ object L5_Modeling extends Lesson {
     */
   val testRelationshipStatus =
     test("RelationshipStatus") {
-      type RelationshipStatus = ???
+      sealed trait MaritalStatus
+      object MaritalStatus {
 
-      def makeMarried: RelationshipStatus = ???
+        case object Single extends MaritalStatus
 
-      def makeSingle: RelationshipStatus = ???
+        case object Married extends MaritalStatus
+
+        case object Divorced extends MaritalStatus
+
+      }
+
+      type RelationshipStatus = MaritalStatus
+
+      def makeMarried: RelationshipStatus = MaritalStatus.Married
+
+      def makeSingle: RelationshipStatus = MaritalStatus.Single
 
       assertTrue(makeMarried != makeSingle)
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -41,17 +52,43 @@ object L5_Modeling extends Lesson {
     */
   val testIceCream =
     test("IceCreamOrder") {
-      type IceCreamOrder = ???
+      case class IceCreamOrder(flavor: Flavor, convenience: Conveyance, cherryOnTop: Boolean)
 
-      type Flavor     = ???
-      type Conveyance = ???
+      sealed trait Flavor
+      object Flavor {
 
-      def rockyRoad: Flavor     = ???
-      def chocolate: Flavor     = ???
-      def milkshake: Conveyance = ???
-      def cone: Conveyance      = ???
+        case object Chocolate extends Flavor
 
-      def makeOrder(flavor: Flavor, conveyance: Conveyance, hasCherry: Boolean): IceCreamOrder = ???
+        case object Vanilla extends Flavor
+
+        case object Strawberry extends Flavor
+
+        case object RockyRoad extends Flavor
+
+      }
+
+      sealed trait Conveyance
+      object Conveyance {
+
+        case object Cup extends Conveyance
+
+        case object Cone extends Conveyance
+
+        case object Milkshake extends Conveyance
+
+      }
+
+
+      def rockyRoad: Flavor = Flavor.RockyRoad
+
+      def chocolate: Flavor = Flavor.Chocolate
+
+
+      def milkshake: Conveyance = Conveyance.Milkshake
+
+      def cone: Conveyance = Conveyance.Cone
+
+      def makeOrder(flavor: Flavor, conveyance: Conveyance, hasCherry: Boolean): IceCreamOrder = IceCreamOrder(flavor, conveyance, hasCherry)
 
       val order1 = makeOrder(chocolate, milkshake, true)
       val order2 = makeOrder(rockyRoad, cone, false)
@@ -60,7 +97,7 @@ object L5_Modeling extends Lesson {
         order1 == order1,
         order1 != order2
       )
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -68,19 +105,25 @@ object L5_Modeling extends Lesson {
     */
   val testCrypto =
     test("crypto") {
-      final case class Portfolio() { // <- Complete this type
-        def add(symbol: Symbol, amount: Double): Portfolio = ???
+      case class Position(symbol: Symbol, amount: Double)
+
+      final case class Portfolio(positions: Map[Symbol, Position]) {
+        def add(symbol: Symbol, amount: Double): Portfolio = {
+          Portfolio(positions + (symbol -> Position(symbol, positions.getOrElse(symbol, Position(symbol, 0)).amount + amount)))
+        }
       }
 
       object Portfolio {
-        val empty: Portfolio = ???
+        val empty: Portfolio = new Portfolio(Map.empty)
       }
 
-      type Symbol = ??? // <- Complete this type
+      case class Symbol(ticker: String)
 
-      def ETH: Symbol  = ???
-      def BTC: Symbol  = ???
-      def DOGE: Symbol = ???
+      def ETH: Symbol = Symbol("ETH")
+
+      def BTC: Symbol = Symbol("BTC")
+
+      def DOGE: Symbol = Symbol("DOGE")
 
       val p1 = Portfolio.empty.add(ETH, 1.0).add(ETH, 1.0).add(BTC, 2.0)
       val p2 = Portfolio.empty.add(BTC, 2.0).add(ETH, 2.0)
@@ -90,7 +133,7 @@ object L5_Modeling extends Lesson {
         p1 == p2,
         p1 != p3
       )
-    } @@ ignore
+    }
 
   /** ✏ EXERCISE
     *
@@ -100,11 +143,14 @@ object L5_Modeling extends Lesson {
     */
   val testSubscription =
     test("subscription") {
-      type Features     = ???
+      type Features = ???
       type Subscription = ???
+
       def makeFeatures(space: Int, sso: Boolean, customLogo: Boolean): Features = ???
-      def makeMonthly(amount: Double, features: Features): Subscription         = ???
-      def makeAnnual(amount: Double, features: Features): Subscription          = ???
+
+      def makeMonthly(amount: Double, features: Features): Subscription = ???
+
+      def makeAnnual(amount: Double, features: Features): Subscription = ???
 
       val features = makeFeatures(2048, true, true)
 
@@ -151,53 +197,7 @@ object L5_Modeling extends Lesson {
   */
 object FunctionalCounter {
 
-  /** The Functional Core.
-    *
-    * This is comprised of immutable data, which contains pure methods that
-    * generate subsequent states based upon input.
-    */
-  final case class Model(count: Int) {
-
-    /** Process the action and create a modified copy which represents the next
-      * iteration of the Model.
-      */
-    def process(action: Action): Model = ???
-
-    /** Use the current state to render a user-readable string that will be
-      * printed to the console.
-      */
-    def render: String = ???
-  }
-
-  object Model {
-    def empty: Model = Model(0)
-  }
-
-  sealed trait Action
-  object Action {
-    case object Add      extends Action
-    case object Subtract extends Action
-    case object Reset    extends Action
-
-    def fromString(string: String): ProcessResult = string match {
-      case "+"     => ProcessResult.succeed(Add)
-      case "-"     => ProcessResult.succeed(Subtract)
-      case "reset" => ProcessResult.succeed(Reset)
-      case _       => ProcessResult.fail
-    }
-  }
-
-  /** A monomorphic version of Option[Action]
-    */
-  sealed trait ProcessResult
-  object ProcessResult {
-    def succeed(action: Action): ProcessResult = Succeed(action)
-    def fail: ProcessResult                    = Fail
-
-    final case class Succeed(action: Action) extends ProcessResult
-    final case object Fail                   extends ProcessResult
-  }
-  import ProcessResult._
+  def main(args: Array[String]): Unit = gameLoop()
 
   /** BONUS
     *
@@ -206,17 +206,76 @@ object FunctionalCounter {
     */
   def gameLoop(): Unit = {
     var state = Model.empty
-    var loop  = true
+    var loop = true
     while (loop) {
       println(state.render)
       Action.fromString(StdIn.readLine()) match {
-        case Succeed(action) => state = state.process(action)
-        case Fail            => loop = false
+        case ProcessResult.Succeed(action) => state = state.process(action)
+        case ProcessResult.Fail => loop = false
       }
     }
   }
 
-  def main(args: Array[String]): Unit = gameLoop()
+  sealed trait Action
+
+  /** A monomorphic version of Option[Action]
+    */
+  sealed trait ProcessResult
+
+  /** The Functional Core.
+    *
+    * This is comprised of immutable data, which contains pure methods that
+    * generate subsequent states based upon input.
+    */
+  final case class State(count: Int) {
+
+    /** Process the action and create a modified copy which represents the next
+      * iteration of the Model.
+      */
+    def process(action: Action): State = action match {
+      case Action.Add => State(this.count + 1)
+      case Action.Subtract => State(this.count - 1)
+      case _ => State.empty
+    }
+
+    /** Use the current state to render a user-readable string that will be
+      * printed to the console.
+      */
+    def render: String = this.count.toString
+  }
+
+  object State {
+    def empty: State = State(0)
+  }
+
+  import ProcessResult._
+
+  object Action {
+
+    def fromString(string: String): ProcessResult = string match {
+      case "+" => ProcessResult.succeed(Add)
+      case "-" => ProcessResult.succeed(Subtract)
+      case "reset" => ProcessResult.succeed(Reset)
+      case _ => ProcessResult.fail
+    }
+
+    case object Add extends Action
+
+    case object Subtract extends Action
+
+    case object Reset extends Action
+  }
+
+  object ProcessResult {
+    def succeed(action: Action): ProcessResult = Succeed(action)
+
+    def fail: ProcessResult = Fail
+
+    final case class Succeed(action: Action) extends ProcessResult
+
+    final case object Fail extends ProcessResult
+
+  }
 
 }
 
@@ -229,6 +288,23 @@ object FunctionalCounter {
   */
 
 object TicTacToe {
+
+  type Move = ???
+
+  /** The Imperative Shell.
+    *
+    * This deals primarily with user input and updating a mutable reference to
+    * the game state.
+    */
+  def main(args: Array[String]): Unit = {
+    var state = State()
+    while (state.isActive) {
+      println(state.render)
+      val move = Move.fromString(StdIn.readLine())
+      state = state.nextState(move)
+    }
+    println(state.render)
+  }
 
   /** The Functional Core, a purely functional representation of TicTacToe game
     * state.
@@ -249,24 +325,8 @@ object TicTacToe {
     def nextState(move: Move): State = ???
   }
 
-  type Move = ???
   object Move {
     def fromString(string: String): Move = ???
-  }
-
-  /** The Imperative Shell.
-    *
-    * This deals primarily with user input and updating a mutable reference to
-    * the game state.
-    */
-  def main(args: Array[String]): Unit = {
-    var state = State()
-    while (state.isActive) {
-      println(state.render)
-      val move = Move.fromString(StdIn.readLine())
-      state = state.nextState(move)
-    }
-    println(state.render)
   }
 }
 
@@ -283,40 +343,6 @@ object TicTacToe {
   */
 object DataGraduation {
 
-  sealed trait Command
-  object Command {
-    case object Exit                        extends Command
-    final case class Look(what: String)     extends Command
-    final case class Go(where: String)      extends Command
-    final case class Take(what: String)     extends Command
-    final case class Drop(what: String)     extends Command
-    final case class Fight(who: String)     extends Command
-    final case class TalkTo(who: String)    extends Command
-    final case class Unknown(input: String) extends Command
-
-    def fromString(input: String): Command =
-      input.trim.toLowerCase.split("\\w+").toList match {
-        case "exit" :: Nil                => Exit
-        case "look" :: what :: Nil        => Look(what)
-        case "go" :: where :: Nil         => Go(where)
-        case "take" :: what :: Nil        => Take(what)
-        case "drop" :: what :: Nil        => Drop(what)
-        case "fight" :: who :: Nil        => Fight(who)
-        case "talk" :: "to" :: who :: Nil => TalkTo(who)
-        case _                            => Unknown(input)
-      }
-  }
-
-  /** ✏ EXERCISE
-    *
-    * Construct a data model for the state of a game world in a text-based
-    * role-playing game. The data model should represent the player character,
-    * the map of the game world, items and characters in the game world, and
-    * anything else relevant to the game.
-    */
-  final case class State(playerName: String)
-  final case class Step(nextState: Option[State], output: String)
-
   /** ✏ EXERCISE
     *
     * Implement the `nextStep` function in such a fashion that new states for
@@ -329,22 +355,66 @@ object DataGraduation {
   def gameLoop(state: State): Unit = {
     println("look | go | tak | drop | fight | talk to")
     print("> ")
-    val line                    = StdIn.readLine()
-    val command                 = Command.fromString(line)
+    val line = StdIn.readLine()
+    val command = Command.fromString(line)
     val Step(nextState, output) = nextStep(state, command)
 
     println(output)
 
     nextState match {
       case Some(state) => gameLoop(state)
-      case None        => ()
+      case None => ()
     }
   }
 
   def main(args: Array[String]): Unit = {
     println("Welcome to the game! What is your name?")
-    val name  = StdIn.readLine()
+    val name = StdIn.readLine()
     val state = State(name)
     gameLoop(state)
+  }
+
+  sealed trait Command
+
+  /** ✏ EXERCISE
+    *
+    * Construct a data model for the state of a game world in a text-based
+    * role-playing game. The data model should represent the player character,
+    * the map of the game world, items and characters in the game world, and
+    * anything else relevant to the game.
+    */
+  final case class State(playerName: String)
+
+  final case class Step(nextState: Option[State], output: String)
+
+  object Command {
+
+    def fromString(input: String): Command =
+      input.trim.toLowerCase.split("\\w+").toList match {
+        case "exit" :: Nil => Exit
+        case "look" :: what :: Nil => Look(what)
+        case "go" :: where :: Nil => Go(where)
+        case "take" :: what :: Nil => Take(what)
+        case "drop" :: what :: Nil => Drop(what)
+        case "fight" :: who :: Nil => Fight(who)
+        case "talk" :: "to" :: who :: Nil => TalkTo(who)
+        case _ => Unknown(input)
+      }
+
+    final case class Look(what: String) extends Command
+
+    final case class Go(where: String) extends Command
+
+    final case class Take(what: String) extends Command
+
+    final case class Drop(what: String) extends Command
+
+    final case class Fight(who: String) extends Command
+
+    final case class TalkTo(who: String) extends Command
+
+    final case class Unknown(input: String) extends Command
+
+    case object Exit extends Command
   }
 }
