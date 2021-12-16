@@ -24,25 +24,14 @@ object L5_Modeling extends Lesson {
     */
   val testRelationshipStatus =
     test("RelationshipStatus") {
-      sealed trait MaritalStatus
-      object MaritalStatus {
+      type RelationshipStatus = ???
 
-        case object Single extends MaritalStatus
+      def makeMarried: RelationshipStatus = ???
 
-        case object Married extends MaritalStatus
-
-        case object Divorced extends MaritalStatus
-
-      }
-
-      type RelationshipStatus = MaritalStatus
-
-      def makeMarried: RelationshipStatus = MaritalStatus.Married
-
-      def makeSingle: RelationshipStatus = MaritalStatus.Single
+      def makeSingle: RelationshipStatus = ???
 
       assertTrue(makeMarried != makeSingle)
-    }
+    } @@ ignore
 
   /** ✏ EXERCISE
     *
@@ -52,43 +41,17 @@ object L5_Modeling extends Lesson {
     */
   val testIceCream =
     test("IceCreamOrder") {
-      case class IceCreamOrder(flavor: Flavor, convenience: Conveyance, cherryOnTop: Boolean)
+      type IceCreamOrder = ???
 
-      sealed trait Flavor
-      object Flavor {
+      type Flavor     = ???
+      type Conveyance = ???
 
-        case object Chocolate extends Flavor
+      def rockyRoad: Flavor     = ???
+      def chocolate: Flavor     = ???
+      def milkshake: Conveyance = ???
+      def cone: Conveyance      = ???
 
-        case object Vanilla extends Flavor
-
-        case object Strawberry extends Flavor
-
-        case object RockyRoad extends Flavor
-
-      }
-
-      sealed trait Conveyance
-      object Conveyance {
-
-        case object Cup extends Conveyance
-
-        case object Cone extends Conveyance
-
-        case object Milkshake extends Conveyance
-
-      }
-
-
-      def rockyRoad: Flavor = Flavor.RockyRoad
-
-      def chocolate: Flavor = Flavor.Chocolate
-
-
-      def milkshake: Conveyance = Conveyance.Milkshake
-
-      def cone: Conveyance = Conveyance.Cone
-
-      def makeOrder(flavor: Flavor, conveyance: Conveyance, hasCherry: Boolean): IceCreamOrder = IceCreamOrder(flavor, conveyance, hasCherry)
+      def makeOrder(flavor: Flavor, conveyance: Conveyance, hasCherry: Boolean): IceCreamOrder = ???
 
       val order1 = makeOrder(chocolate, milkshake, true)
       val order2 = makeOrder(rockyRoad, cone, false)
@@ -97,69 +60,103 @@ object L5_Modeling extends Lesson {
         order1 == order1,
         order1 != order2
       )
-    }
+    } @@ ignore
 
   /** ✏ EXERCISE
     *
-    * Create a precise data model for a user's cryptocurrency portfolio.
+    * Create a precise data model for a user's stock portfolio.
     */
-  val testCrypto =
-    test("crypto") {
-      case class Position(symbol: Symbol, amount: Double)
-
-      final case class Portfolio(positions: Map[Symbol, Position]) {
-        def add(symbol: Symbol, amount: Double): Portfolio = {
-          Portfolio(positions + (symbol -> Position(symbol, positions.getOrElse(symbol, Position(symbol, 0)).amount + amount)))
-        }
+  val testPortfolio =
+    test("portfolio") {
+      final case class Portfolio() { // <- Complete this type
+        def add(symbol: Symbol, amount: Double): Portfolio = ???
       }
 
       object Portfolio {
-        val empty: Portfolio = new Portfolio(Map.empty)
+        val empty: Portfolio = ???
       }
 
-      case class Symbol(ticker: String)
+      type Symbol = ??? // <- Complete this type
 
-      def ETH: Symbol = Symbol("ETH")
+      def AAPL: Symbol = ???
+      def MSFT: Symbol = ???
+      def GOOG: Symbol = ???
 
-      def BTC: Symbol = Symbol("BTC")
-
-      def DOGE: Symbol = Symbol("DOGE")
-
-      val p1 = Portfolio.empty.add(ETH, 1.0).add(ETH, 1.0).add(BTC, 2.0)
-      val p2 = Portfolio.empty.add(BTC, 2.0).add(ETH, 2.0)
-      val p3 = Portfolio.empty.add(DOGE, 9999.0)
+      val p1 = Portfolio.empty.add(AAPL, 1.0).add(AAPL, 1.0).add(MSFT, 2.0)
+      val p2 = Portfolio.empty.add(MSFT, 2.0).add(AAPL, 2.0)
+      val p3 = Portfolio.empty.add(GOOG, 9999.0)
 
       assertTrue(
         p1 == p2,
         p1 != p3
       )
-    }
+    } @@ ignore
 
   /** ✏ EXERCISE
     *
-    * Create a precise data model for a subscription for a SaaS product, which
-    * could be at the annual or monthly level, and which could bundle different
-    * features into the plan.
+    * Migrate this imprecise data model to a precise data model comprised of
+    * sealed traits and case classes, replacing nullable fields and throwing
+    * methods with type-safe analogues.
     */
-  val testSubscription =
-    test("subscription") {
-      type Features = ???
-      type Subscription = ???
+  class S3Config(val accessKey: String, val bucket: String)
+  class LocalConfig(val path: String)
 
-      def makeFeatures(space: Int, sso: Boolean, customLogo: Boolean): Features = ???
+  class ParsedConfig(
+                      configType: String,
+                      s3Config: S3Config,
+                      localConfig: LocalConfig
+                    ) {
+    def connect(): Unit =
+      if (configType == "s3")
+        println(s"Connecting to S3 bucket ${s3Config.bucket}")
+      else
+        println(s"Connecting to local file system at ${localConfig.path}")
+  }
 
-      def makeMonthly(amount: Double, features: Features): Subscription = ???
+  object ParsedConfig {
+    def load(data: Map[String, String]): ParsedConfig =
+      data("configType") match {
+        case "s3" =>
+          val s3Config = new S3Config(data("accessKey"), data("bucket"))
+          new ParsedConfig("s3", s3Config, null)
+        case "local" =>
+          val localConfig = new LocalConfig(data("path"))
+          new ParsedConfig("local", null, localConfig)
+      }
+  }
 
-      def makeAnnual(amount: Double, features: Features): Subscription = ???
+  val testConfig =
+    test("Config") {
+      val s3Data = Map(
+        "configType" -> "s3",
+        "accessKey"  -> "123",
+        "bucket"     -> "bucket"
+      )
 
-      val features = makeFeatures(2048, true, true)
+      val localData = Map(
+        "configType" -> "local",
+        "path"       -> "/tmp/data"
+      )
 
-      def costPerMonth(subscription: Subscription): Double = ???
+      val wrongData = Map(
+        "favoriteMovie" -> "The Matrix",
+        "favoriteFood"  -> "Pizza",
+        "favoriteColor" -> "Blue"
+      )
+
+      //      ** UNCOMMENT THESE LINES **
+      //      ===========================
+      //      val s3Config: Option[Config] = ParsedConfig.load(s3Data)
+      //      val localConfig: Option[Config] = ParsedConfig.load(localData)
+      //      val wrongConfig: Option[Config] = ParsedConfig.load(wrongData)
 
       assertTrue(
-        makeMonthly(9.99, features) != makeAnnual(9.99, features),
-        costPerMonth(makeMonthly(9.99, features)) == 9.99,
-        costPerMonth(makeAnnual(120.00, features)) == 10.00
+        //        ** UNCOMMENT THESE ASSERTIONS **
+        //        ================================
+        //        s3Config.get == S3Config("123", "bucket"),
+        //        localConfig.get == LocalConfig("/tmp/data"),
+        //        wrongConfig == None
+        true
       )
     } @@ ignore
 
@@ -167,8 +164,8 @@ object L5_Modeling extends Lesson {
     suite("Modeling")(
       testRelationshipStatus,
       testIceCream,
-      testCrypto,
-      testSubscription
+      testPortfolio,
+      testConfig
     )
 }
 
@@ -197,31 +194,6 @@ object L5_Modeling extends Lesson {
   */
 object FunctionalCounter {
 
-  def main(args: Array[String]): Unit = gameLoop()
-
-  /** BONUS
-    *
-    * Rewrite the game loop into a tail-recursive function, removing any
-    * explicit mutability.
-    */
-  def gameLoop(): Unit = {
-    var state = Model.empty
-    var loop = true
-    while (loop) {
-      println(state.render)
-      Action.fromString(StdIn.readLine()) match {
-        case ProcessResult.Succeed(action) => state = state.process(action)
-        case ProcessResult.Fail => loop = false
-      }
-    }
-  }
-
-  sealed trait Action
-
-  /** A monomorphic version of Option[Action]
-    */
-  sealed trait ProcessResult
-
   /** The Functional Core.
     *
     * This is comprised of immutable data, which contains pure methods that
@@ -230,52 +202,65 @@ object FunctionalCounter {
   final case class State(count: Int) {
 
     /** Process the action and create a modified copy which represents the next
-      * iteration of the Model.
+      * iteration of the State.
       */
-    def process(action: Action): State = action match {
-      case Action.Add => State(this.count + 1)
-      case Action.Subtract => State(this.count - 1)
-      case _ => State.empty
-    }
+    def process(action: Action): State = ???
 
     /** Use the current state to render a user-readable string that will be
       * printed to the console.
       */
-    def render: String = this.count.toString
+    def render: String = ???
   }
 
   object State {
     def empty: State = State(0)
   }
 
-  import ProcessResult._
-
+  sealed trait Action
   object Action {
+    case object Add      extends Action
+    case object Subtract extends Action
+    case object Reset    extends Action
 
     def fromString(string: String): ProcessResult = string match {
-      case "+" => ProcessResult.succeed(Add)
-      case "-" => ProcessResult.succeed(Subtract)
+      case "+"     => ProcessResult.succeed(Add)
+      case "-"     => ProcessResult.succeed(Subtract)
       case "reset" => ProcessResult.succeed(Reset)
-      case _ => ProcessResult.fail
+      case _       => ProcessResult.fail
     }
-
-    case object Add extends Action
-
-    case object Subtract extends Action
-
-    case object Reset extends Action
   }
 
+  /** A monomorphic version of Option[Action]
+    */
+  sealed trait ProcessResult
   object ProcessResult {
     def succeed(action: Action): ProcessResult = Succeed(action)
-
-    def fail: ProcessResult = Fail
+    def fail: ProcessResult                    = Fail
 
     final case class Succeed(action: Action) extends ProcessResult
-
-    final case object Fail extends ProcessResult
-
+    final case object Fail                   extends ProcessResult
   }
+  import ProcessResult._
+
+  /** BONUS
+    *
+    * Rewrite the game loop into a tail-recursive function, removing any
+    * explicit mutability.
+    */
+  def gameLoop(): Unit = {
+    var state = State.empty
+    var loop  = true
+    while (loop) {
+      println(state.render)
+      print("> ")
+      Action.fromString(StdIn.readLine()) match {
+        case Succeed(action) => state = state.process(action)
+        case Fail            => loop = false
+      }
+    }
+  }
+
+  def main(args: Array[String]): Unit = gameLoop()
 
 }
 
@@ -289,23 +274,6 @@ object FunctionalCounter {
 
 object TicTacToe {
 
-  type Move = ???
-
-  /** The Imperative Shell.
-    *
-    * This deals primarily with user input and updating a mutable reference to
-    * the game state.
-    */
-  def main(args: Array[String]): Unit = {
-    var state = State()
-    while (state.isActive) {
-      println(state.render)
-      val move = Move.fromString(StdIn.readLine())
-      state = state.nextState(move)
-    }
-    println(state.render)
-  }
-
   /** The Functional Core, a purely functional representation of TicTacToe game
     * state.
     *
@@ -314,6 +282,28 @@ object TicTacToe {
     * out some value given the current state, e.g., whether or not the game is
     * still active.
     */
+
+  trait Cell
+
+  object Cell {
+
+  case object Free extends Cell
+
+  case object Player extends Cell
+
+  case object Computer extends Cell
+
+}
+
+  final class Board private (matrix: Array[Array[TicTacToe.Cell]]){
+  }
+
+  object Board {
+      def makeMove(position: Int, owner: Cell) : Board = {
+
+      }
+  }
+
   final case class State() {
 
     /** Should return true if there is not yet a winner or a draw.
@@ -322,11 +312,40 @@ object TicTacToe {
 
     def render: String = ???
 
-    def nextState(move: Move): State = ???
+    def nextState(action: Action): State = ???
   }
 
-  object Move {
-    def fromString(string: String): Move = ???
+  object State {
+    val empty: State = ??? // <- Complete this definition
+  }
+
+  type Action = ??? // <- Complete this type
+
+  object Action {
+    def fromString(string: String): Option[Action] = ???
+  }
+
+  /** The Imperative Shell.
+    *
+    * This deals primarily with user input and updating a mutable reference to
+    * the game state.
+    */
+  def main(args: Array[String]): Unit = {
+    @tailrec
+    def loop(state: State): Unit = {
+      println(state.render)
+      print("> ")
+      if (state.isActive)
+        Action.fromString(StdIn.readLine()) match {
+          case Some(action) =>
+            loop(state.nextState(action))
+          case None =>
+            println(s"Invalid input! Try again.")
+            loop(state)
+        }
+    }
+
+    loop(State.empty)
   }
 }
 
@@ -343,6 +362,40 @@ object TicTacToe {
   */
 object DataGraduation {
 
+  sealed trait Command
+  object Command {
+    case object Exit                        extends Command
+    final case class Look(what: String)     extends Command
+    final case class Go(where: String)      extends Command
+    final case class Take(what: String)     extends Command
+    final case class Drop(what: String)     extends Command
+    final case class Fight(who: String)     extends Command
+    final case class TalkTo(who: String)    extends Command
+    final case class Unknown(input: String) extends Command
+
+    def fromString(input: String): Command =
+      input.trim.toLowerCase.split("\\w+").toList match {
+        case "exit" :: Nil                => Exit
+        case "look" :: what :: Nil        => Look(what)
+        case "go" :: where :: Nil         => Go(where)
+        case "take" :: what :: Nil        => Take(what)
+        case "drop" :: what :: Nil        => Drop(what)
+        case "fight" :: who :: Nil        => Fight(who)
+        case "talk" :: "to" :: who :: Nil => TalkTo(who)
+        case _                            => Unknown(input)
+      }
+  }
+
+  /** ✏ EXERCISE
+    *
+    * Construct a data model for the state of a game world in a text-based
+    * role-playing game. The data model should represent the player character,
+    * the map of the game world, items and characters in the game world, and
+    * anything else relevant to the game.
+    */
+  final case class State(playerName: String)
+  final case class Step(nextState: Option[State], output: String)
+
   /** ✏ EXERCISE
     *
     * Implement the `nextStep` function in such a fashion that new states for
@@ -355,66 +408,22 @@ object DataGraduation {
   def gameLoop(state: State): Unit = {
     println("look | go | tak | drop | fight | talk to")
     print("> ")
-    val line = StdIn.readLine()
-    val command = Command.fromString(line)
+    val line                    = StdIn.readLine()
+    val command                 = Command.fromString(line)
     val Step(nextState, output) = nextStep(state, command)
 
     println(output)
 
     nextState match {
       case Some(state) => gameLoop(state)
-      case None => ()
+      case None        => ()
     }
   }
 
   def main(args: Array[String]): Unit = {
     println("Welcome to the game! What is your name?")
-    val name = StdIn.readLine()
+    val name  = StdIn.readLine()
     val state = State(name)
     gameLoop(state)
-  }
-
-  sealed trait Command
-
-  /** ✏ EXERCISE
-    *
-    * Construct a data model for the state of a game world in a text-based
-    * role-playing game. The data model should represent the player character,
-    * the map of the game world, items and characters in the game world, and
-    * anything else relevant to the game.
-    */
-  final case class State(playerName: String)
-
-  final case class Step(nextState: Option[State], output: String)
-
-  object Command {
-
-    def fromString(input: String): Command =
-      input.trim.toLowerCase.split("\\w+").toList match {
-        case "exit" :: Nil => Exit
-        case "look" :: what :: Nil => Look(what)
-        case "go" :: where :: Nil => Go(where)
-        case "take" :: what :: Nil => Take(what)
-        case "drop" :: what :: Nil => Drop(what)
-        case "fight" :: who :: Nil => Fight(who)
-        case "talk" :: "to" :: who :: Nil => TalkTo(who)
-        case _ => Unknown(input)
-      }
-
-    final case class Look(what: String) extends Command
-
-    final case class Go(where: String) extends Command
-
-    final case class Take(what: String) extends Command
-
-    final case class Drop(what: String) extends Command
-
-    final case class Fight(who: String) extends Command
-
-    final case class TalkTo(who: String) extends Command
-
-    final case class Unknown(input: String) extends Command
-
-    case object Exit extends Command
   }
 }
