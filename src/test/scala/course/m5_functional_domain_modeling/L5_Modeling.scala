@@ -299,9 +299,9 @@ object TicTacToe {
   }
 
   object Board {
-      def makeMove(position: Int, owner: Cell) : Board = {
+    //  def makeMove(position: Int, owner: Cell) : Board = {
 
-      }
+    //  }
   }
 
   final case class State() {

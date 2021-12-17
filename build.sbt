@@ -1,6 +1,6 @@
-name := "Java-to-Scala"
-scalaVersion := "2.13.6"
-version      := "0.1.0-SNAPSHOT"
+ThisBuild / name := "Java-to-Scala"
+ThisBuild / scalaVersion := "2.13.6"
+ThisBuild / version      := "0.1.0-SNAPSHOT"
 
 val zioVersion = "1.0.12"
 
